@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'inventagiochi 3000</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff0f0;
+            color: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        p.subtitle {
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+
+        /* BADGE AUTORE */
+        .author-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #fdfbf7;
+            padding: 6px 18px 6px 6px;
+            border-radius: 50px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+            margin-bottom: 40px;
+        }
+        .author-badge:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            border-color: #375a7f;
+        }
+        .author-img { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            display: block;
+        }
+        .author-name { 
+            font-size: 0.9rem; 
+            color: #1a1a1a; 
+        }
+
+        /* WRAPPER PER SIDEBAR E GIOCO */
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        /* COLONNA SINISTRA (Idee + Curiosità) */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        /* SIDEBAR IDEE */
+        .sidebar {
+            background: #fff;
+            border: 2px solid #e74c3c;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .sidebar h2 {
+            color: #e74c3c;
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        /* Contenitore idee scrollabile al 5° elemento */
+        #ideas-list {
+            /* ~215px ospitano circa 4 idee. Dalla 5° appare lo scroll */
+            max-height: 215px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 5px;
+        }
+
+        /* Scrollbar personalizzata per le liste */
+        #ideas-list::-webkit-scrollbar, .curiosity-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        #ideas-list::-webkit-scrollbar-track, .curiosity-box::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 10px;
+        }
+        #ideas-list::-webkit-scrollbar-thumb, .curiosity-box::-webkit-scrollbar-thumb {
+            background: #bdc3c7; 
+            border-radius: 10px;
+        }
+        #ideas-list::-webkit-scrollbar-thumb:hover, .curiosity-box::-webkit-scrollbar-thumb:hover {
+            background: #95a5a6; 
+        }
+
+        .idea-item {
+            background: #fdfbf7;
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .idea-item:hover {
+            border-color: #375a7f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #f1f5f8;
+        }
+
+        /* BOTTONI ESPORTA NELLA SIDEBAR */
+        .sidebar-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        .btn-sidebar {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s, background-color 0.2s;
+            color: white;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .btn-sidebar:hover { opacity: 0.8; }
+        .btn-copy { background-color: #3498db; }
+        .btn-export { background-color: #f39c12; }
+
+        /* BOX CURIOSITÀ */
+        .curiosity-box {
+            background-color: rgba(253, 247, 214, 0.9); /* Giallino poco opacizzato */
+            border: 2px dashed #e67e22; /* Cornicetta da trivia */
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            max-height: 250px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .curiosity-box h3 {
+            margin-top: 0;
+            color: #d35400;
+            font-size: 1.1em;
+            text-align: center;
+            border-bottom: 1px dashed #e67e22;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .curiosity-box p {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #34495e;
+            margin: 0;
+            text-align: justify;
+        }
+
+        /* LAYOUT PRINCIPALE */
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .game-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .board {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .card-container {
+            width: 220px;
+            height: 340px;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-radius: 12px;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card-back {
+            background-image: url('https://res.cloudinary.com/dlppkpjqs/image/upload/v1772491818/retroca_fgtuok.jpg');
+            background-size: cover;
+            background-position: center;
+            border: 5px solid #fff;
+        }
+
+        .card-front {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            transform: rotateY(180deg);
+            border: 5px solid #e74c3c;
+            position: relative;
+        }
+
+        .card-front h3 {
+            color: #e74c3c;
+            margin-top: 0;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            width: 100%;
+        }
+
+        .card-front p {
+            font-size: 1.1em;
+            font-weight: bold;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+
+        .card-front span.desc {
+            display: block;
+            font-size: 0.85em;
+            font-weight: normal;
+            color: #7f8c8d;
+            margin-top: 15px;
+        }
+
+        .single-shuffle {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #e74c3c;
+            cursor: pointer;
+            z-index: 20;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            user-select: none;
+        }
+        .single-shuffle:hover {
+            background-color: #e74c3c;
+            color: white;
+            transform: scale(1.1);
+        }
+        .single-shuffle:active {
+            transform: scale(0.95);
+        }
+
+        button.btn-mescola {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        button.btn-mescola:hover {
+            background-color: #c0392b;
+        }
+
+        button.btn-mescola:active {
+            transform: translateY(2px);
+        }
+
+        .brainstorm-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brainstorm-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e74c3c;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            box-sizing: border-box;
+            background-color: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .brainstorm-textarea:focus {
+            outline: none;
+            border-color: #c0392b;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+        }
+
+        button.btn-salva {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            align-self: flex-end;
+            margin-top: 12px;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        button.btn-salva:hover {
+            background-color: #27ae60;
+        }
+
+        button.btn-salva:active {
+            transform: translateY(2px);
+        }
+
+        /* MODALE MODIFICA IDEA */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+            align-items: center; 
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 25px;
+            border: 3px solid #e74c3c;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            margin: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .modal-content textarea {
+            height: 180px;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+        }
+        
+        .modal-content textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .modal-buttons button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            color: white;
+        }
+        
+        .modal-buttons button:hover { opacity: 0.8; }
+        .btn-aggiorna { background-color: #3498db; }
+        .btn-elimina { background-color: #e74c3c; }
+        .btn-chiudi { background-color: #95a5a6; }
+
+        /* TOAST NOTIFICATION */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #27ae60;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        @media (max-width: 900px) {
+            .app-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            .left-column {
+                width: 100%;
+                max-width: 600px;
+                order: 2; 
+                margin-bottom: 20px;
+            }
+            .main-layout {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .board {
+                gap: 15px;
+            }
+            .card-container {
+                width: 160px;
+                height: 260px;
+            }
+            .card-front {
+                padding: 10px;
+            }
+            .card-front h3 {
+                font-size: 1em;
+                padding-bottom: 5px;
+            }
+            .card-front p {
+                font-size: 0.9em;
+            }
+            .card-front span.desc {
+                font-size: 0.7em;
+                margin-top: 8px;
+            }
+            .author-img {
+                width: 50px;
+                height: 50px;
+            }
+            .author-name {
+                font-size: 0.8rem;
+            }
+            button.btn-mescola {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+            .single-shuffle {
+                width: 25px;
+                height: 25px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .card-container {
+                width: 140px;
+                height: 230px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-title">L'inventagiochi 3000</h1>
+    <p class="subtitle" id="main-subtitle">Bip bip bop bop bzzzzzzzzzzz... inventagiochi 3000 a disposizione.... cosa inventiamo oggi?</p>
+
+    <div style="text-align: center;">
+        <a href="https://www.instagram.com/sciallato_lorenzo/" target="_blank" class="author-badge" id="author-badge">
+            <img src="https://files.catbox.moe/qvck5j.png" alt="Lorenzo Sciallato" class="author-img">
+            <span class="author-name" id="author-text">Creato da <strong>Lorenzo</strong> &copy; 2026</span>
+        </a>
+    </div>
+
+    <div class="app-wrapper">
+        <div class="left-column">
+            
+            <div class="sidebar" id="sidebar">
+                <h2>IDEE</h2>
+                <div id="ideas-list">
+                    </div>
+                
+                <div class="sidebar-actions">
+                    <button class="btn-sidebar btn-copy" onclick="copyIdeas()" id="btn-copy">Copia Tutto</button>
+                    <button class="btn-sidebar btn-export" onclick="exportIdeas()">Scarica (.txt)</button>
+                </div>
+            </div>
+
+            <div class="curiosity-box" id="curiosity-box">
+                <h3>💡 Lo Sapevi?</h3>
+                <p id="curiosita-text">Mescola le carte per scoprire una nuova curiosità!</p>
+            </div>
+
+        </div>
+
+        <div class="main-layout" id="mainLayout">
+            <div class="game-area">
+                <div class="board">
+                    <div class="card-container" onclick="flipCard(this)">
+                        <div class="card" id="card-eta">
+                            <div class="card-face card-back"></div>
+                            <div class="card-face card-front">
+                                <div class="single-shuffle" onclick="shuffleSingle('eta', event)">↻</div>
+                                <h3 id="card-title-eta">1. Target Età</h3>
+                                <p id="testo-eta"></p>
+                                <span class="desc" id="desc-eta"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-container" onclick="flipCard(this)">
+                        <div class="card" id="card-gioco">
+                            <div class="card-face card-back"></div>
+                            <div class="card-face card-front">
+                                <div class="single-shuffle" onclick="shuffleSingle('gioco', event)">↻</div>
+                                <h3 id="card-title-gioco">2. Categoria</h3>
+                                <p id="testo-gioco"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-container" onclick="flipCard(this)">
+                        <div class="card" id="card-tema">
+                            <div class="card-face card-back"></div>
+                            <div class="card-face card-front">
+                                <div class="single-shuffle" onclick="shuffleSingle('tema', event)">↻</div>
+                                <h3 id="card-title-tema">3. Tema</h3>
+                                <p id="testo-tema"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-mescola" id="shuffle-all-btn" onclick="mescolaCarte()">Mescola le Carte</button>
+                
+                <div class="brainstorm-container">
+                    <textarea class="brainstorm-textarea" id="brainstorm-textarea" placeholder="Butta giù qualcosa, bella o brutta non importa!"></textarea>
+                    <button class="btn-salva" onclick="saveIdea()">Salva Idea</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="idea-modal" class="modal">
+        <div class="modal-content">
+            <h3>Dettaglio Idea</h3>
+            <textarea id="edit-idea-text"></textarea>
+            <div class="modal-buttons">
+                <button class="btn-aggiorna" onclick="updateIdea()">Salva Modifiche</button>
+                <button class="btn-elimina" onclick="deleteIdea()">Elimina Idea</button>
+                <button class="btn-chiudi" onclick="closeModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Copiato!</div>
+
+    <script>
+        // ----- DATI ITALIANI -----
+        const database = {
+            eta_target: [
+                "0-6 mesi (Sviluppo visivo, uditivo e prensione. Alto contrasto, esplorazione tattile)",
+                "6-12 mesi (Scoperta della permanenza dell'oggetto, primi movimenti autonomi, dentizione)",
+                "1-2 anni (Primi passi, motricità fine, incastri semplici, ripetizione continua)",
+                "3-4 anni (Inizio dell'imitazione, sviluppo del linguaggio, animismo)",
+                "5-6 anni (Prime regole sociali, sviluppo dell'empatia, motricità fine avanzata)",
+                "7-8 anni (Pensiero logico, giochi di squadra, comprensione di regole strutturate, prime strategie)",
+                "9-12 anni (Sfide logiche, meccanismi complessi, costruzione di modelli, giochi scientifici)",
+                "13-17 anni (Giochi sociali avanzati, party games, espressione di sé, modellismo di precisione)",
+                "Kidult 18+ (Nostalgia, collezionismo, design d'interni, giochi da tavolo strategici complessi o escape room)"
+            ],
+            tipi_gioco: [
+                "Giochi di carte strategici [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Giochi di carte educativi e Flashcards [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]",
+                "Party games basati su testo e dialogo [9-12 anni, 13-17 anni, Kidult 18+]",
+                "Giochi da tavolo Print & Play (P&P) [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Memory card game tematici [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Escape Room da tavolo cartacee [9-12 anni, 13-17 anni, Kidult 18+]",
+                "Giochi di ruolo carta e penna (Manuale + Schede) [9-12 anni, 13-17 anni, Kidult 18+]",
+                "Libri-gioco o Avventure a bivi [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Cacce al tesoro pronte da stampare con indizi testuali [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]",
+                "Giochi investigativi (fascicoli stampati tipo cold case) [13-17 anni, Kidult 18+]",
+                "Tombola / Bingo con varianti tematiche [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]",
+                "Giochi di percorso (stile Gioco dell'Oca) su plance stampate [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Puzzle 2D in cartone o cartoncino pressato ritagliato [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Tangram in cartoncino o legno di recupero [5-6 anni, 7-8 anni, 9-12 anni]",
+                "Papercraft 3D e modellini di carta [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Libri pop-up artigianali semplici [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Diorami in scatola di cartone [5-6 anni, 7-8 anni, 9-12 anni]",
+                "Teatrino Kamishibai in cartone per narrazione [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Sagome di carta da vestire (Paper dolls) [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Maschere da ritagliare e colorare in cartoncino [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Teatro delle ombre cinesi (sagome in cartoncino nero e stecchini) [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]",
+                "Cubi racconta-storie (Story cubes fai-da-te in carta o legno) [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]",
+                "Sassi dipinti per storytelling (Story stones) [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Scacchiera e pedine [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Tris (Tic-Tac-Toe) da viaggio in feltro o tessuto [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Domino in legno fai-da-te [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]",
+                "Jenga o torre di blocchi con legno di scarto levigato [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Geopiano (tavoletta di legno, chiodini ed elastici) [5-6 anni, 7-8 anni, 9-12 anni]",
+                "Yo-yo base personalizzabili [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]",
+                "Bersaglio a freccette morbide (feltro e palline in velcro) [5-6 anni, 7-8 anni, 9-12 anni]",
+                "Burattini a calzino decorati [1-2 anni, 3-4 anni, 5-6 anni]",
+                "Doudou per neonati (semplice cucito di quadrati di stoffa) [0-6 mesi, 6-12 mesi, 1-2 anni]",
+                "Quiet book (libri tattili in panno lenci o feltro) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]",
+                "Tappeti gioco stampati o disegnati su teli di cotone [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]",
+                "Aquiloni base in carta, plastica di sacchetti e spago [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]",
+                "Kit origami per aereoplanini di carta da competizione [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Orologio educativo in cartone con lancette mobili (fermacampioni) [5-6 anni, 7-8 anni]",
+                "Abaco artigianale con spiedini in legno e perline [5-6 anni, 7-8 anni]",
+                "Alfabetiere tattile [3-4 anni, 5-6 anni]",
+                "Tenda Tepee da camera [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Scatola misteriosa tattile (Mistery box in cartone con buco) [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Set timbrini fai-da-te (intagliati in gomma crepla o sughero) [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Dadi personalizzati in legno grezzo (scritte a pennarello o pirografo) [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Biliardino in miniatura [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]",
+                "Sonaglio da impugnare [0-6 mesi]",
+                "Giostrina da culla (mobile) [0-6 mesi]",
+                "Doudou in morbida stoffa [0-6 mesi]",
+                "Palestrina con archi e pendenti [0-6 mesi]",
+                "Anello massaggiagengive [0-6 mesi]",
+                "Libro sensoriale in stoffa [0-6 mesi]",
+                "Palla morbida tattile [0-6 mesi]",
+                "Carillon a cordicella [0-6 mesi]",
+                "Tappeto gioco imbottito [0-6 mesi]",
+                "Braccialetti e calzini sonori [0-6 mesi]",
+                "Peluche morbido senza parti in plastica [0-6 mesi]",
+                "Cubo sensoriale in tessuto [0-6 mesi]",
+                "Libretto ad alto contrasto (bianco e nero) [0-6 mesi]",
+                "Catenella portaciuccio in legno/silicone [0-6 mesi]",
+                "Cuscino per il tummy time [0-6 mesi]",
+                "Dondolino / Sdraietta a dondolo [0-6 mesi]",
+                "Sonaglio a bastoncino [0-6 mesi]",
+                "Piramide ad anelli da impilare [6-12 mesi]",
+                "Scatola con forme geometriche a incastro [6-12 mesi]",
+                "Carrello primi passi [6-12 mesi]",
+                "Tamburo giocattolo [6-12 mesi]",
+                "Palla sensoriale con protuberanze [6-12 mesi]",
+                "Libri cartonati con alette (lift-the-flap) [6-12 mesi]",
+                "Cubi morbidi da costruzione [6-12 mesi]",
+                "Telefono giocattolo con tastoni [6-12 mesi]",
+                "Trottola grande a pressione [6-12 mesi]",
+                "Maracas in plastica o legno [6-12 mesi]",
+                "Macchinina grande morbida [6-12 mesi]",
+                "Tunnel di stoffa pop-up [6-12 mesi]",
+                "Xilofono base a 4-5 tasti [6-12 mesi]",
+                "Tavoletta multiattività (busy board base) [6-12 mesi]",
+                "Secchiello e formine per il bagnetto [6-12 mesi]",
+                "Animale da tirare con la cordicella [6-12 mesi]",
+                "Bambola di pezza [6-12 mesi]",
+                "Gioco del martello con pioli colorati [6-12 mesi]",
+                "Palestrina interattiva con suoni [6-12 mesi]",
+                "Tazze impilabili [6-12 mesi]",
+                "Mattoncini giganti (es. Mega Bloks) [1-2 anni]",
+                "Cavalcabile a 4 ruote [1-2 anni]",
+                "Triciclo a spinta [1-2 anni]",
+                "Puzzle in legno con pomelli [1-2 anni]",
+                "Lavagna magica magnetica [1-2 anni]",
+                "Bambolotto classico [1-2 anni]",
+                "Set pappa giocattolo [1-2 anni]",
+                "Animaletti della fattoria in plastica [1-2 anni]",
+                "Trenino di legno a incastro [1-2 anni]",
+                "Gioco da pesca con calamite [1-2 anni]",
+                "Chiodini misura maxi [1-2 anni]",
+                "Tenda da camera (tepee) [1-2 anni]",
+                "Abaco classico a palline grandi [1-2 anni]",
+                "Cucinetta giocattolo in legno o plastica [3-4 anni]",
+                "Set del dottore [3-4 anni]",
+                "Registratore di cassa [3-4 anni]",
+                "Costumi da travestimento [3-4 anni]",
+                "Mattoncini a incastro [1-2 anni, 3-4 anni, 5-6 anni]",
+                "Puzzle da 24-30 pezzi [3-4 anni]",
+                "Gioco del Memory [3-4 anni]",
+                "Banco da lavoro con attrezzi di plastica [3-4 anni]",
+                "Casa delle bambole [3-4 anni]",
+                "Pista per trenini in legno componibile [3-4 anni]",
+                "Macchinine [1-2 anni, 3-4 anni, 5-6 anni]",
+                "Pista per biglie grande [3-4 anni]",
+                "Aquilone semplice [3-4 anni]",
+                "Triciclo con pedali [3-4 anni]",
+                "Action figure base  [3-4 anni]",
+                "Bambola da pettinare/vestire [3-4 anni]",
+                "Gioco dell'Oca [3-4 anni]",
+                "Tombola degli animali [3-4 anni]",
+                "Marionette a mano [3-4 anni]",
+                "Domino con figure o colori [3-4 anni]",
+                "Mattoncini a incastro classici [3-4 anni, 5-6 anni, 7-8 anni]",
+                "Simil-Indovina Chi? [5-6 anni]",
+                "Forza 4 [5-6 anni]",
+                "Puzzle da 100 pezzi [5-6 anni]",
+                "Action figure snodabili [5-6 anni]",
+                "Yo-yo [5-6 anni]",
+                "Gioco di carte tipo UNO [5-6 anni]",
+                "Domino classico a puntini [5-6 anni]",
+                "Dama base [5-6 anni]",
+                "Set di timbrini [5-6 anni]",
+                "Giochi di Strategia base [7-8 anni]",
+                "Puzzle da 500 pezzi [7-8 anni]",
+                "Carte collezionabili (es. Pokémon) [7-8 anni]",
+                "Bersaglio con freccette magnetiche [7-8 anni]",
+                "Scacchi [7-8 anni]",
+                "Trottole da combattimento (es. Beyblade) [7-8 anni]",
+                "Biliardino da tavolo [7-8 anni]",
+                "Jenga [7-8 anni]",
+                "Costruzioni complesse (architettura) [9-12 anni]",
+                "Puzzle da 1000 pezzi [9-12 anni]",
+                "Modellismo statico (auto, aerei da incollare) [9-12 anni]",
+                "Giochi di carte tipo Dixit [9-12 anni]",
+                "Giochi tipo Catan [13-17 anni]",
+                "Modellismo avanzato [13-17 anni]",
+                "Puzzle 3D o rompicapo complessi [13-17 anni]",
+                "Party game irriverenti (es. Exploding Kittens, Cards Against Humanity) [13-17 anni]",
+                "Escape Room da tavolo [13-17 anni]",
+                "Rompicapo in metallo (es. Hanayama) [13-17 anni]",
+                "Set dadi poliedrici [13-17 anni]",
+                "Carte da prestigiatore (es. Bicycle) [13-17 anni]",
+                "Modellismo statico di precisione (es. Gunpla) [Kidult 18+]",
+                "Giochi da tavolo legacy (es. Gloomhaven) [Kidult 18+]",
+                "Wargames tridimensionali (es. Warhammer 40k) [Kidult 18+]",
+                "Puzzle 2000+ pezzi o d'autore [Kidult 18+]",
+                "Flipper da casa [Kidult 18+]",
+                "Biliardo [Kidult 18+]",
+                "Rompicapo meccanici in legno tagliati al laser (es. Ugears) [Kidult 18+]",
+                "Diorami o book nook da assemblare [Kidult 18+]",
+                "Kit di pittura per miniature [Kidult 18+]",
+                "Giochi investigativi realistici (es. Sherlock Holmes Consulente Investigativo) [Kidult 18+]",
+                "Scacchiera di design / da collezione [Kidult 18+]",
+                "Macchine telecomandate (RC) a scoppio o alta velocità [Kidult 18+]",
+                "Giochi da tavolo strategici complessi (Eurogames pesanti) [Kidult 18+]"
+            ],
+            temi: [
+                "Colori Primari ad Alto Contrasto [0-6 mesi, 6-12 mesi]", "Forme Geometriche Morbide [0-6 mesi, 6-12 mesi, 1-2 anni]", "Suoni della Natura (Pioggia, Vento) [0-6 mesi, 6-12 mesi, 1-2 anni]", "Animali della Fattoria (Mucche, Maiali, Pecore) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Animali Domestici (Cani, Gatti) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Sottobosco e Insetti simpatici (Coccinelle, Api) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "La Nanna e i Sogni [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Il Bagnetto e l'Acqua [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "La Pappa e il Cibo [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Frutta e Verdura Sorridente [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Cielo, Sole, Luna e Stelle [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Orsetti e Peluche classici [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Veicoli Base (Macchinine, Trenini rossi) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Pesciolini e Oceano simpatico [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Gocce di Pioggia e Arcobaleni [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Paperelle di gomma [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Dinosauri Cuccioli [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Gattini e Gomitoli [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "La Famiglia (Mamma, Papà, Nonni) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Emozioni Base (Felice, Triste, Arrabbiato) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Farfalle e Fiori [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Le Quattro Stagioni [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Animali della Savana (Leoni, Elefanti) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Pinguini e Polo Nord [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Rane e Stagni [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Barchette a vela [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Mongolfiere e Nuvole [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Circo (Animali acrobati) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Giostre dei Cavalli [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Fiabe Classiche (Cappuccetto Rosso, ecc.) [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Fate Buone e Polvere di Stelle [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Gnomi del Bosco [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Pupazzi di Neve e Inverno [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Il Mestiere del Contadino [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Il Medico dei Bambini [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Le Parti del Corpo [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Gli Strumenti Musicali Base [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "I Numeri da 1 a 10 [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "L'Alfabeto e le Lettere [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Aeroplanini di Carta [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Palloncini Colorati [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni]", "Castelli di Sabbia e Spiaggia [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Cucina e Preparazione Pappa [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni]", "Macchinine da Corsa [0-6 mesi, 6-12 mesi, 1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Pirati e Mappe del Tesoro [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Principesse e Castelli [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Draghi Buoni [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Sirene e Regno Sottomarino [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Unicorni Magici [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Supereroi Base (Bambini con mantello) [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Esplorazione Spaziale (Razzo, Astronauta) [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Alieni Simpatici [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Robot di Latta [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Pompieri e Camion Rossi [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Polizia e Macchine a Sirena [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Cantiere e Ruspe [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Ospedale e Primo Soccorso [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Clinica Veterinaria [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Pasticceria e Cupcakes [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Scuola e Maestre [3-4 anni, 5-6 anni, 7-8 anni]", "Il Supermercato [1-2 anni, 3-4 anni, 5-6 anni, 7-8 anni]", "Calcio e Palloni [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Danza e Tutù [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Ginnastica Artistica [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Arti Marziali (Judo, Karate) [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Motocross [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Dinosauri Realistici (T-Rex, Velociraptor) [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Mostri Buffi sotto il Letto [3-4 anni, 5-6 anni, 7-8 anni]", "Fantasmi Simpatici / Halloween Light [3-4 anni, 5-6 anni, 7-8 anni]", "Vampiri Buffi [3-4 anni, 5-6 anni, 7-8 anni]", "Zombie Buffi [5-6 anni, 7-8 anni, 9-12 anni]", "Invenzioni e Scienziati Pazzi [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]", "Sottomarini da Esplorazione [5-6 anni, 7-8 anni, 9-12 anni]", "Tesori Nascosti in Caverne [5-6 anni, 7-8 anni, 9-12 anni]", "Sopravvivenza sull'Isola Deserta [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]", "Magia, Illusionismo e Prestigio [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Luna Park e Montagne Russe [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]", "Natura Selvaggia (Documentario) [5-6 anni, 7-8 anni, 9-12 anni]", "Insetti Realistici e Ragni [5-6 anni, 7-8 anni, 9-12 anni]", "Fossili e Paleontologia [5-6 anni, 7-8 anni, 9-12 anni]", "Antico Egitto (Faraoni, Piramidi) [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Antica Roma (Gladiatori) [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Labirinti Magici [5-6 anni, 7-8 anni, 9-12 anni]", "Viaggi nel Tempo [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Ninja e Arti Furtive [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]", "Samurai e Giappone Feudale [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Fantasy Epico (Guerrieri, Orchi) [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Sci-Fi Distopico [9-12 anni, 13-17 anni, Kidult 18+]", "Cyberpunk e Neon [9-12 anni, 13-17 anni, Kidult 18+]", "Steampunk (Ingranaggi e Vapore) [9-12 anni, 13-17 anni, Kidult 18+]", "Post-apocalittico / Sopravvivenza [13-17 anni, Kidult 18+]", "Horror / Thriller Gotico [13-17 anni, Kidult 18+]", "Investigazione / Detective [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "True Crime / Omicidi Irrisolti [13-17 anni, Kidult 18+]", "Mitologia Greca (Zeus, Ercole) [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Mitologia Norrena (Thor, Odino) [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Medioevo Oscuro e Peste [13-17 anni, Kidult 18+]", "Seconda Guerra Mondiale (Storico) [9-12 anni, 13-17 anni, Kidult 18+]", "Spionaggio / Agenti Segreti 007 [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Hacker e Sicurezza Informatica [9-12 anni, 13-17 anni, Kidult 18+]", "Intelligenza Artificiale Ribelle [9-12 anni, 13-17 anni, Kidult 18+]", "Zombi Survival estremo [13-17 anni, Kidult 18+]", "Vampiri Gotici / Licantropi Oscuri [13-17 anni, Kidult 18+]", "Demoni e Angeli (Conflitto Eterno) [13-17 anni, Kidult 18+]", "Magia Oscura e Alchimia [9-12 anni, 13-17 anni, Kidult 18+]", "Esoterismo e Astrologia [13-17 anni, Kidult 18+]", "Spazio Profondo e Buchi Neri [9-12 anni, 13-17 anni, Kidult 18+]", "Colonizzazione Marziana [9-12 anni, 13-17 anni, Kidult 18+]", "Ingegneria Genetica e Mutanti [9-12 anni, 13-17 anni, Kidult 18+]", "Mecha / Robot da Combattimento Giganti [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Kaiju (Mostri Giganti alla Godzilla) [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Stile Anime e Manga Shonen [9-12 anni, 13-17 anni, Kidult 18+]", "Sport Estremi (BMX, Skateboard) [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Parkour e Corsa Urbana [9-12 anni, 13-17 anni, Kidult 18+]", "Street Art e Graffiti [9-12 anni, 13-17 anni, Kidult 18+]", "Musica Rock / Heavy Metal [13-17 anni, Kidult 18+]", "Cultura Hip Hop e Breakdance [9-12 anni, 13-17 anni, Kidult 18+]", "DJ e Clubbing Elettronico [13-17 anni, Kidult 18+]", "Cucina Gourmet e Alta Ristorazione [9-12 anni, 13-17 anni, Kidult 18+]", "Sushi e Cultura del Cibo Orientale [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Viaggi On the Road / Route 66 [13-17 anni, Kidult 18+]", "Van Life / Campeggio Selvaggio [9-12 anni, 13-17 anni, Kidult 18+]", "Architettura Moderna e Grattacieli [9-12 anni, 13-17 anni, Kidult 18+]", "Design Minimalista [13-17 anni, Kidult 18+]", "Retro Gaming Anni 80/90 [13-17 anni, Kidult 18+]", "Estetica Vaporwave [13-17 anni, Kidult 18+]", "Economia, Finanza e Wall Street [13-17 anni, Kidult 18+]", "Gestione Politica e Costruzione Imperi [13-17 anni, Kidult 18+]", "Scacchi e Strategia Astratta [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Criptozoologia (Bigfoot, Nessie) [9-12 anni, 13-17 anni, Kidult 18+]", "Invasione Aliena Globale [9-12 anni, 13-17 anni, Kidult 18+]", "Misteri Irrisolti e Complotti [13-17 anni, Kidult 18+]", "I Cavalieri Templari e il Graal [9-12 anni, 13-17 anni, Kidult 18+]", "Esplorazione Urbana (Urbex) [13-17 anni, Kidult 18+]", "Ecologia e Salvataggio del Pianeta [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Psicologia e Viaggio nella Mente [13-17 anni, Kidult 18+]", "Filosofia e Paradossi [13-17 anni, Kidult 18+]", "Cucina e Ricette dal Mondo [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Illusioni Ottiche Astratte [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Macchine di Rube Goldberg [7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Mondo di Caramelle Giganti [3-4 anni, 5-6 anni, 7-8 anni, 9-12 anni]", "Olimpiadi e Gare Sportive [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]", "Equitazione e Maneggio [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni]", "Alpinismo e Scalate Estreme [9-12 anni, 13-17 anni, Kidult 18+]", "I Quattro Elementi (Acqua, Aria, Terra, Fuoco) [5-6 anni, 7-8 anni, 9-12 anni, 13-17 anni, Kidult 18+]"
+            ],
+            // Database Curiosità pulito dai numeri e dalle intestazioni
+            curiosita: [
+                "Falegnameria di salvataggio: Ole Kirk Christiansen, il fondatore della LEGO, era un falegname danese sull'orlo del fallimento durante la Grande Depressione. Iniziò a fare giocattoli di legno con gli scarti per non chiudere bottega.",
+                "Pedagogia cubica: Ernő Rubik, professore ungherese di architettura, inventò il celebre Cubo nel 1974 solo per spiegare la geometria 3D ai suoi studenti. Quando lo mescolò la prima volta, impiegò un mese intero per risolverlo.",
+                "Satira anticapitalista: Lizzie Magie inventò nel 1904 \"The Landlord's Game\", il precursore del Monopoly. Lo creò per dimostrare i pericoli del monopolio immobiliare e del capitalismo spietato, ma l'ironia fu che il gioco celebrò esattamente ciò che lei criticava.",
+                "Il furto milionario: Charles Darrow, disoccupato, copiò il gioco di Lizzie Magie chiamato \"the Landlord's Game\", ci aggiunse i nomi delle strade di Atlantic City e lo vendette alla Parker Brothers col nome, oggi famosissimo: \"Monopoly\". Darrow divenne il primo inventore di giochi a diventare milionario.",
+                "Barbie di carta: Ruth Handler creò la Barbie nel 1959 dopo aver osservato sua figlia Barbara dare ruoli da adulti a semplici bambole di carta. Fu rivoluzionario: all'epoca esistevano quasi solo bambolotti a forma di neonato per simulare la maternità.",
+                "L'uomo calcolatrice: Gunpei Yokoi, leggendario ingegnere Nintendo, ebbe l'idea per il Game Boy e i giochi portatili (Game & Watch) viaggiando in treno. Vide un impiegato d'ufficio annoiato che giocava premendo i tasti di una calcolatrice.",
+                "Il lato oscuro della vita: Milton Bradley creò \"The Checkered Game of Life\" (Il Gioco della Vita) nel 1860. Poiché aveva solo 24 anni, decise di farsi crescere una finta barba per apparire sulle copertine dei giornali come un vecchio saggio e rassicurante educatore.",
+                "Insetti tascabili: Satoshi Tajiri, il creatore dei Pokémon, nello spettro autistico, da bambino era ossessionato dal collezionare insetti nelle foreste vicino Tokyo. Quando la città fu cementificata, volle regalare ai bambini moderni la stessa emozione di cattura e scoperta.",
+                "La fuga dall'ospedale: Il coloratissimo gioco da tavolo \"Candy Land\" fu inventato nel 1948 da Eleanor Abbott, una maestra in via di guarigione in un reparto di isolamento per la poliomielite. Lo creò per distrarre i bambini costretti a stare nei polmoni d'acciaio.",
+                "Giocare al buio: Shigeru Miyamoto, papà di Super Mario e Zelda, basò i suoi giochi sulle esplorazioni della sua infanzia. Senza mappe o torce, esplorava grotte oscure e foreste di Kyoto, cercando di replicare quel senso di ignoto nei videogiochi.",
+                "Robot dell'orrore: Scott Cawthon, creatore del gioco \"Five Nights at Freddy's\", sviluppava giochi cristiani per famiglie. Un critico recensì un suo gioco dicendo \"i tuoi personaggi animati sembrano inquietanti animatroni robotici\". Cawthon prese la critica e ne fece un impero dell'orrore.",
+                "Caccia ai topi in TV: Ralph Baer, considerato il \"padre dei videogiochi\", creò la prima console domestica (Magnavox Odyssey) nel 1972. Era scappato dalla Germania nazista e la sua prima idea di gioco fu letteralmente due quadrati che si rincorrevano sullo schermo.",
+                "L'incubo dei calcoli: Richard Garfield, creatore di \"Magic: The Gathering\", è un matematico puro. Sviluppò il gioco di carte collezionabili perché voleva un sistema con infinite combinazioni statistiche che mettesse alla prova la capacità analitica dei giocatori.",
+                "Pixel miliardari: Markus \"Notch\" Persson creò Minecraft nel tempo libero ispirandosi a giochi oscuri di costruzione di blocchi. Il gioco senza scopo e con grafica basilare è diventato il videogioco più venduto della storia umana, rendendolo miliardario a sorpresa.",
+                "Orsi presidenziali: L'orsacchiotto \"Teddy Bear\" fu inventato in onore del presidente americano Theodore (Teddy) Roosevelt. Nel 1902, durante una battuta di caccia, si rifiutò di sparare a un orso nero legato a un albero perché lo riteneva anti-sportivo.",
+                "Il pioniere degli scacchi: L'inventore del computer per scacchi \"Sargon\", Dan e Kathe Spracklen, scrissero il codice originale negli anni '70 usando un assembly Z80, battendo i mainframe universitari con un chip domestico meno potente di quello in un microonde moderno.",
+                "Bambole di pezza dal cuore d'oro: Johnny Gruelle creò la bambola Raggedy Ann nel 1915 per sua figlia Marcella, che morì tragicamente poco dopo. La bambola divenne un simbolo di guarigione e Gruelle usò i proventi per campagne di sensibilizzazione contro le malattie infantili.",
+                "Architetti del divertimento: Frank Lloyd Wright, il leggendario architetto, sosteneva che il suo genio derivasse dai \"Blocchi Froebel\", un kit di costruzione in legno per l'infanzia che sua madre gli regalò nel 1876, insegnandogli i principi spaziali.",
+                "Nascosti in soffitta: Il celebre gioco da tavolo \"Cluedo\" fu ideato da Anthony Pratt, un musicista di Birmingham, durante i blackout della Seconda Guerra Mondiale. Le finte indagini servivano a intrattenere i rifugiati nei bunker sotterranei.",
+                "I fratelli delle macchinine: Ruth e Elliot Handler, dopo aver fondato Mattel, lanciarono le Hot Wheels nel 1968. Elliot assunse ingegneri della General Motors e fisici per creare gli assali perfetti che le rendevano le macchinine più veloci al mondo.",
+                "Puzzle curativi: John Spilsbury, un incisore londinese, creò il primo puzzle della storia nel 1760. Montò una mappa su legno e la tagliò lungo i confini dei paesi per insegnare la geografia ai figli di Re Giorgio III.",
+                "Bambole anatomiche: Le bambole Cabbage Patch Kids nacquero da Xavier Roberts, uno studente d'arte che usava una tecnica di trapuntatura tedesca. Inizialmente non le \"vendeva\", ma chiedeva ai compratori di \"adottarle\" pagando una tassa, completa di certificato di nascita.",
+                "L'aviazione di carta: I primi aeroplanini di carta come li conosciamo furono perfezionati negli anni '30 dagli ingegneri della Lockheed Corporation. Li usavano in miniatura per testare le proporzioni aerodinamiche dei veri aerei prima di usare le gallerie del vento.",
+                "Mostri di gomma: I \"Gormiti\", popolarissimi in Italia, furono creati da Leandro Consumi. Voleva creare personaggi legati ai quattro elementi classici (terra, aria, acqua, fuoco) basandosi sulla mitologia nordica, ma adattati alla gomma morbida per bambini.",
+                "Sfere in bilico: Il gioco \"Jenga\" fu inventato da Leslie Scott, una donna cresciuta in Africa orientale. \"Jenga\" deriva da una parola in lingua Swahili che significa letteralmente \"Costruire!\".",
+                "L'arte dei chiodini: Il \"Quercetti Chiodini\" (Pegboard) fu inventato a Torino da Alessandro Quercetti. L'ispirazione venne dal desiderio di tradurre l'arte dei mosaici bizantini in un passatempo portatile che potesse essere smontato e rifatto all'infinito.",
+                "Trucchi ottici in tasca: Il \"Tamagotchi\" fu concepito da Aki Maita di Bandai nel 1996. Notò che le bambine giapponesi amavano portare animaletti a scuola, ma era proibito. Il suo cucciolo di pixel risolveva il problema igienico e regolamentare.",
+                "L'esercito tascabile: I soldatini di plastica verde \"Army Men\" divennero popolari negli anni '50. Dopo la Seconda Guerra Mondiale, gli stampi in metallo erano costosi, ma i residuati di plastica militare a basso costo permisero di produrli a milioni.",
+                "Illusioni rotanti: Lo Zoetrope, il cilindro che faceva muovere le immagini prima del cinema, fu popolarizzato da Milton Bradley. Egli lo vendeva ai bambini nel 1860 come magia per capire il principio della persistenza retinica.",
+                "Giochi di società spietati: \"Risiko!\" fu originariamente inventato nel 1957 dal regista francese Albert Lamorisse col nome de \"La Conquête du Monde\". Le regole originali erano molto più sanguinose e non c'erano carte obiettivo: si vinceva solo annientando l'avversario.",
+                "Ratti che ridono: La scienza dimostra che il gioco è istintivo nei mammiferi. Il neuroscienziato Jaak Panksepp ha scoperto che i ratti, quando giocano alla lotta o vengono solleticati, emettono ultrasuoni a 50 kHz, l'equivalente della nostra risata.",
+                "Crescita del cervello: Giocare fisicamente stimola la secrezione del \"Brain-Derived Neurotrophic Factor\" (BDNF), una proteina che agisce come un fertilizzante per il cervello, incoraggiando la crescita di nuovi neuroni nell'amigdala e nella corteccia prefrontale.",
+                "Il Tetris Effect: Giocare a lungo a giochi ripetitivi di incastro come Tetris altera la percezione visiva e crea nuove sinapsi. Le persone iniziano a sognare i blocchi che cadono o cercano di \"incastrare\" mentalmente oggetti nel mondo reale.",
+                "La via della dopamina: Quando giochiamo a un videogioco e passiamo di livello, il nostro cervello secerne dopamina nel nucleo accumbens, esattamente il centro della ricompensa stimolato da esperienze intense come il cibo o, purtroppo, le dipendenze.",
+                "Neuroni specchio: I bambini che giocano a \"mamma e papà\" o al \"dottore\" allenano i neuroni specchio. Questo gioco di ruolo sviluppa fisicamente nel cervello l'empatia cognitiva, permettendo loro di comprendere le emozioni altrui.",
+                "Puzzle e invecchiamento: Recenti studi in neurologia hanno dimostrato che chi risolve regolarmente puzzle, cruciverba e giochi da tavolo complessi ha un rischio significativamente minore di sviluppare sintomi precoci di Alzheimer rispetto alla media.",
+                "Imparare a cadere: Il gioco fisico rischioso (arrampicarsi sugli alberi, correre veloci) è evolutivamente necessario. Insegna al sistema nervoso dei bambini a calibrare il rischio e a gestire lo stress e l'ansia causata dagli imprevisti.",
+                "Tempo percepito: Quando siamo profondamente immersi in un gioco, entriamo nello stato di \"Flow\" (Flusso) descritto dallo psicologo Mihály Csíkszentmihályi. In questo stato, la percezione del tempo si altera perché la corteccia prefrontale riduce le sue funzioni di monitoraggio.",
+                "Matematica naturale: I giochi con regole rigide (come scacchi o dama) insegnano al cervello il concetto matematico di \"algoritmo\" prima ancora che i bambini imparino a contare, allenando il pensiero computazionale sequenziale.",
+                "La gravità sperimentale: Lanciare oggetti dal seggiolone non è dispetto, è fisica sperimentale. I neonati \"giocano\" a far cadere gli oggetti ripetutamente per testare se le leggi della fisica terrestre sono costanti.",
+                "Superare il dolore: L'uso di videogiochi immersivi in Realtà Virtuale viene ora usato negli ospedali per i pazienti ustionati gravi. Il gioco assorbe così tanta attenzione cosciente che i segnali del dolore non trovano spazio per raggiungere il cervello.",
+                "Finzione evolutiva: I cuccioli di lupo e di leone giocano a mordersi senza ferirsi (inibizione del morso). Questo insegna loro non solo a cacciare, ma le complesse gerarchie sociali necessarie per vivere in branco.",
+                "Costruire l'ego: I mattoncini tipo LEGO migliorano le abilità di orientamento spaziale. È stato provato che i bambini che giocano spesso con costruzioni tridimensionali hanno punteggi più alti nei test di matematica avanzata alle scuole superiori.",
+                "Giocare disintossica: Durante il gioco libero non strutturato, i livelli dell'ormone dello stress (cortisolo) nel sangue dei bambini calano drasticamente nel giro di 15 minuti di attività all'aperto.",
+                "Il valore della noia: I neuroscienziati avvertono che fornire un eccesso di giocattoli iper-strutturati inibisce l'immaginazione. La noia è il pre-requisito neurologico fondamentale perché il cervello inventi giochi originali.",
+                "Giocatori chirurgici: Un curioso studio ha rivelato che i chirurghi laparoscopici che giocano ai videogiochi per più di tre ore a settimana commettono il 37% di errori in meno in sala operatoria, avendo una micro-coordinazione occhio-mano superiore.",
+                "La fisica dell'Hula Hoop: Far girare un cerchio intorno alla vita non è solo destrezza, è una dimostrazione pratica di forze centripete e momento angolare. Se si smette di spingere, l'attrito disperde l'energia e la gravità vince.",
+                "Memoria muscolare: Giocare con uno Yo-yo aiuta il cervelletto ad automatizzare compiti complessi. Una volta imparato il trucco, lo si può fare parlando d'altro: il cervello ha trasferito l'informazione nella memoria procedurale inconscia.",
+                "Imparare a perdere: I giochi competitivi sono essenziali per insegnare la regolazione emotiva. La frustrazione della sconfitta controllata sviluppa la resilienza del lobo frontale, insegnando a gestire rabbia e delusione nel mondo reale.",
+                "Linguaggio segreto: Quando le bambine giocano a saltare la corda cantando filastrocche ritmiche, stanno sincronizzando i sistemi uditivi e motori, accelerando drammaticamente l'acquisizione delle regole sintattiche e la fluidità del linguaggio.",
+                "Cecità inattentiva: Nei giochi di prestigio legati ai kit di magia si sfrutta la \"cecità inattentiva\": il cervello umano ignora completamente un'azione palese se l'attenzione è concentrata su un altro punto brillante o rumoroso.",
+                "Scavare connessioni: La manipolazione della sabbia e dell'acqua stimola le terminazioni nervose nei polpastrelli, che sono la parte del corpo umano con la più alta densità di recettori tattili, accelerando la neurogenesi.",
+                "Troppi colori confondono: Le camerette e i giocattoli dai colori fluo eccessivi possono iperstimolare la corteccia visiva, causando irritabilità nei neonati. I colori tenui favoriscono una focalizzazione serena.",
+                "L'importanza del distruggere: Costruire una torre e distruggerla dà ai bambini un senso di onnipotenza e controllo sul loro ambiente immediato, aiutandoli a combattere i sentimenti di impotenza.",
+                "I suoni di gomma: Il \"squeak\" (squittio) dei giocattoli di gomma imita fedelmente la frequenza sonora di una piccola preda ferita, attivando l'istinto predatore sopito dei nostri animali domestici.",
+                "Illusioni di peso: I produttori di bambole inseriscono sacchetti di sabbia nella testa dei bambolotti perché il cervello si aspetta che un neonato sia \"pesante in testa\", scatenando istinti protettivi.",
+                "Terapia del peluche: Gli psicologi chiamano la classica copertina o l'orsacchiotto \"oggetto transizionale\". Serve a colmare psicologicamente il vuoto emotivo lasciato dall'assenza fisica della madre durante il sonno.",
+                "Ritmo circadiano e schermi: I videogiochi serali su tablet interferiscono col sonno perché la luce blu emessa dallo schermo distrugge la melatonina, facendo credere al cervello del bambino che sia pieno giorno.",
+                "Occhio dominante: Nel tiro al bersaglio o con pistole giocattolo si scopre rapidamente che, proprio come la mano, abbiamo un \"occhio dominante\". Il 30% delle persone ha un occhio dominante opposto alla mano dominante.",
+                "Giochi simmetrici: Il cervello umano è attratto in modo innato dalla simmetria, poiché in natura è segno di salute genetica. Ecco perché i giochi di costruzione mandalica e i caleidoscopi procurano un profondo rilassamento visivo.",
+                "Il sentiero dell'aldilà: Il Senet egizio (3100 a.C.) è uno dei giochi da tavolo più antichi del mondo. I faraoni vi giocavano per simulare il viaggio dell'anima verso l'aldilà: perdere significava rischiare la dannazione eterna.",
+                "Gioco reale sumero: Il Gioco Reale di Ur, scavato in Mesopotamia (2600 a.C.), aveva regole così raffinate che sono state scoperte scritte su una tavoletta cuneiforme che indicava le predizioni astrologiche legate alle mosse.",
+                "Ossa della fortuna: I primi dadi non erano cubi di plastica, ma astragali, piccole ossa delle caviglie di pecore. Poiché hanno 4 facce irregolari, lanciare astragali era il gioco d'azzardo più diffuso nell'antica Grecia.",
+                "Bambole d'osso romane: Nelle tombe di alcune bambine romane sono state trovate bambole d'avorio e osso con arti snodabili. Le dedicavano a Venere o Diana nel giorno del loro matrimonio, per segnare la fine dell'infanzia.",
+                "Trottole antiche: La trottola è universale. Sono state trovate trottole di argilla a Troia e di legno nelle tombe di Tutankhamon. Venivano usate in riti religiosi per scacciare gli spiriti con il loro ronzio.",
+                "Palla fatale: Il Pitz (il gioco della palla mesoamericano) si giocava con una palla di gomma massiccia. A volte, alla fine della partita rituale, il capitano della squadra sconfitta (o vincitrice!) veniva decapitato.",
+                "Biglie preistoriche: Le biglie sono più vecchie del vetro. Gli archeologi hanno trovato sfere di pietra liscia sepolte con i bambini Neanderthal o nelle antiche tombe egizie, usate per colpire bersagli a terra.",
+                "Dadi truccati romani: A Pompei sono stati rinvenuti molti dadi romani. Sorprendentemente, molti di questi sono asimmetrici o piombati (riempiti di piombo da un lato). L'imbroglio ai tavoli da gioco era diffuso nell'Impero.",
+                "Cavallini di Troia: Ben prima del mito omerico, i cavallini di terracotta montati su quattro ruote erano giocattoli comuni nell'antica Grecia per i bambini, usati per simulare corse di carri sul pavimento di casa.",
+                "Acchiapparella greca: Nell'antica Grecia giocavano a mosca cieca, chiamata Chalkē Muia (Mosca di bronzo), in cui il bendato doveva gridare \"Darò la caccia alla mosca di bronzo!\".",
+                "Eserciti di argilla da tavolo: In India nacque il Chaturanga, il vero progenitore degli scacchi. Rappresentava le quattro divisioni dell'esercito indiano antico: fanteria, cavalleria, elefanti (alfieri) e carri (torri).",
+                "Aquiloni d'allarme: In Cina, circa 3000 anni fa, gli aquiloni non erano giochi per bambini, ma strumenti militari. L'imperatore Wu li usava per misurare la distanza dai muri della città assediata e come segnali luminosi.",
+                "Domino di preveggenza: Il domino fu inventato in Cina (1120 d.C.). In origine, i punti rappresentavano le costellazioni cinesi e venivano usati da monaci e veggenti per divinare il futuro, non per combinare numeri.",
+                "Palloni di cuoio: I legionari romani si tenevano in forma giocando ad Harpastum, un gioco violento, misto tra rugby e lotta, che usava una piccola palla di cuoio dura ripiena di piume o crine di cavallo.",
+                "Labirinti sul pavimento: Si ritiene che i soldati romani usassero il gioco della campana (Hopscotch) come esercizio di allenamento per i piedi in armatura. Le caselle dovevano essere lunghe oltre 30 metri in origine!",
+                "Carte da banconote: Le prime carte da gioco cinesi erano in realtà le vere banconote in carta della valuta imperiale. I giocatori mescolavano e scommettevano direttamente i soldi con cui giocavano.",
+                "Il tric-trac dell'Impero: Il gioco romano del Ludus Duodecim Scriptorum (Gioco delle 12 linee) era diffuso in tutte le province, con tavole incise sulle gradinate dei fori. È l'antenato diretto del Backgammon moderno.",
+                "Armi giocattolo di legno: I vichinghi costruivano per i loro figli esatte repliche in miniatura di spade, scudi e barche in legno di pino. I ragazzini dovevano allenarsi fin dai 5 anni a difendere il villaggio.",
+                "Marionette tombali: Nell'antico Egitto, venivano costruite rudimentali marionette animate da cordicelle. Erano poste nelle tombe dei bambini nobili affinché avessero \"servitori\" per giocare nell'aldilà.",
+                "Sonagli anti-demoni: I sonagli per neonati sono tra i giocattoli più antichi del mondo. Il loro scopo originario era fare rumore per allontanare gli spiriti maligni dalla culla.",
+                "Frisbee dell'Olimpo: Il lancio del disco, nato nell'antica Grecia, usava originariamente enormi sassi di fiume levigati prima di passare al bronzo per le competizioni ufficiali panelleniche.",
+                "Dadi divini indiani: Il gioco del Pachisi (da cui deriva \"Non t'arrabbiare\") si giocava nell'antica India. Secondo la leggenda, il dio Shiva in persona ci giocava con sua moglie Parvati per stabilire il dominio sull'universo.",
+                "Bersagli aztechi: Nel gioco azteco Patolli, i fagioli venivano usati come dadi. Era un gioco d'azzardo talmente accanito che nobili e contadini arrivavano a scommettere le proprie case o persino la propria libertà.",
+                "Il cerchio e il bastone: Far rotolare un cerchio di legno con un bastoncino era uno dei passatempi più diffusi a Roma (Trochus). Lo consigliava persino il medico Galeno come eccellente esercizio cardiovascolare.",
+                "Yoyo greco antico: Su un vaso greco del 440 a.C. è dipinto un ragazzo che gioca con uno yo-yo di terracotta, rendendolo il secondo giocattolo più antico al mondo storicamente documentato (dopo la bambola).",
+                "Tavole da gioco navali: Le navi vichinghe sono state rinvenute con tavole del gioco Hnefatafl intagliate nel legno dei banchi dei rematori, usate per far passare il tempo durante i lunghi viaggi oceanici.",
+                "Cerbottane silenziose: Le cerbottane nacquero migliaia di anni fa tra le tribù dell'Amazzonia come armi letali da caccia. Solo nell'Europa Vittoriana divennero innocui tubi da cui i ragazzini sparavano palline di carta.",
+                "Il precursore del biliardo: Nel medioevo europeo, il gioco del croquet e delle bocce invernali veniva spostato all'interno, su tavoli recintati da bordi verdi (a simulare l'erba), dando vita al primo rudimentale biliardo.",
+                "Fionde bibliche: La fionda di Davide non era un giocattolo a \"Y\" con l'elastico, ma una lunga cinghia di cuoio. L'elastico in gomma fu inventato e applicato solo nell'800.",
+                "Altalene rituali: Nell'antica Grecia, giovani ragazze si dondolavano su altalene appese agli alberi. Era un rito magico di purificazione nell'aria in onore del dio Dioniso e per propiziare la fertilità.",
+                "Mancala, calcoli d'Africa: Il Mancala non è un singolo gioco ma una famiglia di giochi basati su semi e buche nella terra. Richiede capacità di calcolo eccezionali ed è noto storicamente come \"il gioco dei matematici\".",
+                "Il bilanciamento del Kendama: In Giappone, il Kendama (palla legata a un filo) è molto più di un gioco: esistono campionati nazionali severissimi, gradi marziali (Dan) e richiede una meditazione cinetica assoluta.",
+                "Piñata, dall'Asia al Messico: La Piñata messicana è originaria della Cina! Marco Polo vide figure di carta piene di semi per il capodanno cinese, portò l'idea in Italia e da lì i missionari la introdussero in Messico.",
+                "Petanque e palle di cannone: In Francia, si dice storicamente che la pesantezza delle bocce di ferro derivi dal riutilizzo di vecchie palle di cannone o proiettili d'artiglieria militari da parte dei soldati a riposo.",
+                "Ddakji, pieghe letali in Corea: Reso famoso da Squid Game, il Ddakji richiede di ribaltare il riquadro di carta piegata dell'avversario. Richiede una padronanza perfetta dell'angolazione e della forza d'impatto sul suolo.",
+                "Carrom, il biliardo a dita indiano: In India si gioca a Carrom su tavole quadrate lucide. Invece di stecche, si usano le dita per colpire piccole pedine, spolverando il tavolo con acido borico per ridurre l'attrito.",
+                "Kabaddi, il respiro trattenuto: Nel subcontinente indiano il Kabaddi è un gioco in cui un \"incursore\" deve toccare gli avversari e tornare nella sua metà campo trattenendo il respiro e cantilenando per dimostrare di non inalare aria.",
+                "Ringo, il frisbee polacco: Il Ringo nacque in Polonia negli anni '50 come sport da spiaggia. Consiste nel lanciare un anello di gomma oltre una rete da pallavolo. Richiede l'uso ambidestro delle mani.",
+                "Caccia all'osso mongola: In Mongolia, i bambini giocano allo Shagai, usando ossicini di pecora come dadi. Ogni faccia dell'osso rappresenta un animale sacro (cavallo, cammello, capra, pecora) ed è considerato un portafortuna.",
+                "Il cricket tribale: Nelle isole Trobriand, il cricket inglese fu trasformato in un selvaggio gioco tribale con squadre di 50 persone, canti di guerra, magia propiziatoria e mazze scolpite finemente.",
+                "Buzkashi, il polo afghano: Sebbene non per bambini, il gioco nazionale in Afghanistan è il Buzkashi, una forma feroce di polo dove cavalieri a cavallo si contendono la carcassa decapitata di una capra al posto della palla.",
+                "Sjoelen, le assi olandesi: Nei Paesi Bassi il Sjoelbak è un'istituzione natalizia. Si fanno scivolare dischi di legno lungo un tavolo cercando di farli entrare in quattro piccole fessure sul fondo.",
+                "Matrioske dal Giappone: Sebbene le bambole a incastro siano il simbolo della Russia, i creatori russi del 1890 si ispirarono direttamente alle bambole in legno del Giappone, che raffiguravano saggi buddisti rimpiccioliti.",
+                "Fatti di spago: Il \"Gioco del Ripiglino\" (creare figure con uno spago incrociato fra le dita) è documentato come l'unico gioco inventato in modo completamente indipendente in quasi tutte le culture umane isolate.",
+                "Onetsh, lance di neve: Le tribù native del Nord America lanciavano lunghi e sottili bastoni di legno levigato lungo binari di neve liscia, vincendo se andavano più lontano.",
+                "Tejo colombiano esplosivo: Il Tejo consiste nel lanciare pesanti dischi metallici verso un bersaglio di argilla su cui sono posizionati dei piccoli pacchetti di polvere da sparo che esplodono al contatto!",
+                "Novuss, il biliardo navale: Molto popolare nei paesi baltici, il Novuss fu inventato dai marinai lettoni intorno al 1920 per permettere loro di giocare a \"biliardo\" sulle navi beccheggianti usando dischi piatti anziché sfere.",
+                "Makarnika, sculture di pasta: Tra i bambini di diverse tribù dell'Etiopia, è tradizione modellare piccoli animali elaborati usando solo scarti di fango e impasti di cenere, facendoli poi indurire al sole.",
+                "Sepak Takraw, calci volanti: Originario della Malaysia, è una spettacolare pallavolo giocata solo con i piedi e la testa usando una palla di rattan intrecciato. I giocatori compiono rovesciate acrobatiche irreali.",
+                "Oware, l'anima nel seme: Una variante del Mancala, il gioco nazionale del Ghana. È così sacro che tradizionalmente, se il gioco finisce alla sera, i semi vengono lasciati sulla tavola in modo che anche gli spiriti possano giocarci.",
+                "Makruk, gli scacchi thailandesi: Nel Makruk, la regina è debolissima (può muovere di un solo passo in diagonale), rendendo le partite molto più lunghe, difensive e strategiche rispetto agli scacchi occidentali.",
+                "Zanza, la musica tascabile: La Kalimba o \"piano da pollice\" africano viene da secoli usata dai pastori più giovani del sud Africa come antistress portatile durante i lunghi viaggi o i giochi sonori serali.",
+                "Corsa dei copertoni: Un gioco di strada diffusissimo in Sud America e Africa prevede la corsa spingendo un vecchio pneumatico usando un bastone: vince chi non fa mai cadere la ruota su terreni dissestati.",
+                "Gūg, farfalle balinesi: A Bali, la costruzione e la battaglia di enormi aquiloni (spesso a forma di grandi farfalle o navi) non è solo per diletto, ma un omaggio stagionale agli dèi indù per un raccolto propizio.",
+                "Kyykkä, birilli russi: Antico gioco careliano-finlandese, simile al bowling ma giocato con corti e spessi ceppi di legno. Si lancia una vera e propria mazza pesante per spingere i ceppi avversari fuori dall'area di gioco.",
+                "Gioco del cucchiaio: I bambini caucasici intagliavano elaborati cucchiai in legno con figure antropomorfe. Vestiti con frammenti di stoffa, diventavano i burattini principali dei teatrini casalinghi invernali.",
+                "Jianzi, palleggio piumato: Da più di duemila anni in Cina si gioca col Jianzi, un volano con quattro piume fissate a una base metallica. L'obiettivo è mantenerlo in aria usandolo come un pallone da calcio.",
+                "Chueca, l'hockey mapuche: I Mapuche del Cile del Sud giocano da secoli alla Chueca. Era così intessuto nella cultura che, per risolvere dispute tra tribù, si disputava una partita sacra di questo sport.",
+                "Mahjong, rumore del passero: Il Mahjong cinese prende il nome dal suo suono. L'azione di mescolare freneticamente al tavolo le tessere di osso o bachelite ricordava il chiacchiericcio o il rumore d'ali dei passeri litigiosi."
+            ]
+        };
+
+        // Variabili globali
+        let currentAgeKey = "";
+        let savedIdeas = [];
+        let currentEditingId = null;
+
+        function getRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function flipCard(element) {
+            element.querySelector('.card').classList.toggle('flipped');
+        }
+
+        function updateCuriosity() {
+            const curText = document.getElementById('curiosita-text');
+            curText.innerText = getRandom(database.curiosita);
+        }
+
+        function updateCardsFromAge(ageKey) {
+            // Trova l'item completo dell'età (con descrizione)
+            let etaItem = database.eta_target.find(item => item.startsWith(ageKey));
+            if (!etaItem) return;
+            let descEta = etaItem.split('(')[1].replace(')', '');
+
+            // Filtra gioco e tema validi
+            let giochiValidi = database.tipi_gioco.filter(gioco => gioco.includes(ageKey));
+            let itemGiocoRaw = getRandom(giochiValidi);
+            let itemGiocoPulito = itemGiocoRaw ? itemGiocoRaw.replace(/ \[[^\]]*\]/g, '') : "N/A";
+
+            let temiValidi = database.temi.filter(tema => tema.includes(ageKey));
+            let itemTemaRaw = getRandom(temiValidi);
+            let itemTemaPulito = itemTemaRaw ? itemTemaRaw.replace(/ \[[^\]]*\]/g, '') : "N/A";
+
+            // Aggiorna HTML
+            document.getElementById('testo-eta').innerText = ageKey;
+            document.getElementById('desc-eta').innerText = descEta;
+            document.getElementById('testo-gioco').innerText = itemGiocoPulito;
+            document.getElementById('testo-tema').innerText = itemTemaPulito;
+
+            currentAgeKey = ageKey;
+        }
+
+        function mescolaCarte() {
+            // Nascondi tutte le carte
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('flipped'));
+
+            // Cambia curiosità
+            updateCuriosity();
+
+            setTimeout(() => {
+                let itemEta = getRandom(database.eta_target);
+                let chiaveEta = itemEta.split(' (')[0].trim();
+                updateCardsFromAge(chiaveEta);
+            }, 400);
+        }
+
+        function shuffleSingle(tipo, event) {
+            event.stopPropagation(); // Impedisce il flip della carta
+
+            if (tipo === 'eta') {
+                let itemEta = getRandom(database.eta_target);
+                let nuovaChiave = itemEta.split(' (')[0].trim();
+                let descEta = itemEta.split('(')[1].replace(')', '');
+
+                document.getElementById('testo-eta').innerText = nuovaChiave;
+                document.getElementById('desc-eta').innerText = descEta;
+                
+                currentAgeKey = nuovaChiave;
+            } 
+            else if (tipo === 'gioco') {
+                if (!currentAgeKey) return;
+                let giochiValidi = database.tipi_gioco.filter(gioco => gioco.includes(currentAgeKey));
+                if (giochiValidi.length === 0) return;
+                let itemGiocoRaw = getRandom(giochiValidi);
+                let itemGiocoPulito = itemGiocoRaw.replace(/ \[[^\]]*\]/g, '');
+                document.getElementById('testo-gioco').innerText = itemGiocoPulito;
+            } 
+            else if (tipo === 'tema') {
+                if (!currentAgeKey) return;
+                let temiValidi = database.temi.filter(tema => tema.includes(currentAgeKey));
+                if (temiValidi.length === 0) return;
+                let itemTemaRaw = getRandom(temiValidi);
+                let itemTemaPulito = itemTemaRaw.replace(/ \[[^\]]*\]/g, '');
+                document.getElementById('testo-tema').innerText = itemTemaPulito;
+            }
+        }
+
+        /* ----- FUNZIONI SALVATAGGIO IDEE ----- */
+
+        function loadIdeas() {
+            const stored = localStorage.getItem('inventagiochi_ideas');
+            if (stored) {
+                savedIdeas = JSON.parse(stored);
+            }
+            renderIdeas();
+        }
+
+        function renderIdeas() {
+            const list = document.getElementById('ideas-list');
+            list.innerHTML = '';
+            
+            if (savedIdeas.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#7f8c8d; font-size:0.9em; margin-top:20px;">Ancora nessuna idea salvata.</p>';
+                return;
+            }
+
+            savedIdeas.forEach(idea => {
+                const div = document.createElement('div');
+                div.className = 'idea-item';
+                div.innerText = idea.title;
+                div.onclick = () => openIdeaModal(idea.id);
+                list.appendChild(div);
+            });
+            
+            // Auto scroll verso il basso per le nuove idee se necessario
+            list.scrollTop = 0;
+        }
+
+        function saveIdea() {
+            const textarea = document.getElementById('brainstorm-textarea');
+            const text = textarea.value.trim();
+            if (!text) return;
+            
+            // Genera il titolo: prime 20 lettere circa
+            let title = text.substring(0, 20).replace(/\n/g, ' ');
+            if (text.length > 20) title += '...';
+            
+            const newIdea = {
+                id: Date.now(),
+                title: title,
+                text: text
+            };
+            
+            savedIdeas.unshift(newIdea); // Aggiunge in cima alla lista
+            localStorage.setItem('inventagiochi_ideas', JSON.stringify(savedIdeas));
+            
+            textarea.value = ''; // Svuota il blocco
+            renderIdeas();
+        }
+
+        function openIdeaModal(id) {
+            currentEditingId = id;
+            const idea = savedIdeas.find(i => i.id === id);
+            if (!idea) return;
+            
+            document.getElementById('edit-idea-text').value = idea.text;
+            document.getElementById('idea-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('idea-modal').classList.remove('show');
+            currentEditingId = null;
+        }
+
+        function updateIdea() {
+            if (!currentEditingId) return;
+            const text = document.getElementById('edit-idea-text').value.trim();
+            
+            if (!text) {
+                deleteIdea();
+                return;
+            }
+            
+            let title = text.substring(0, 20).replace(/\n/g, ' ');
+            if (text.length > 20) title += '...';
+
+            const index = savedIdeas.findIndex(i => i.id === currentEditingId);
+            if (index !== -1) {
+                savedIdeas[index].text = text;
+                savedIdeas[index].title = title;
+                localStorage.setItem('inventagiochi_ideas', JSON.stringify(savedIdeas));
+                renderIdeas();
+            }
+            closeModal();
+        }
+
+        function deleteIdea() {
+            if (!currentEditingId) return;
+            savedIdeas = savedIdeas.filter(i => i.id !== currentEditingId);
+            localStorage.setItem('inventagiochi_ideas', JSON.stringify(savedIdeas));
+            renderIdeas();
+            closeModal();
+        }
+
+        /* ----- FUNZIONI ESPORTAZIONE IDEE & TOAST ----- */
+
+        function getFormattedIdeas() {
+            if (savedIdeas.length === 0) return "Nessuna idea salvata.";
+            let text = "IDEE INVENTAGIOCHI 3000\n\n";
+            savedIdeas.forEach((idea, index) => {
+                text += `${index + 1}. ${idea.title}\n${idea.text}\n\n------------------------\n\n`;
+            });
+            return text;
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.classList.add("show");
+            setTimeout(function(){ 
+                toast.classList.remove("show"); 
+            }, 3000);
+        }
+
+        function copyIdeas() {
+            if (savedIdeas.length === 0) {
+                alert("Nessuna idea da copiare!");
+                return;
+            }
+            
+            const textToCopy = getFormattedIdeas();
+
+            // Fallback robusto
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast();
+                } else {
+                    alert("Impossibile copiare automaticamente. Prova a scaricare il file.");
+                }
+            } catch (err) {
+                alert("Errore durante la copia: " + err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function exportIdeas() {
+            if (savedIdeas.length === 0) {
+                alert("Nessuna idea da scaricare!");
+                return;
+            }
+            const textToExport = getFormattedIdeas();
+            const blob = new Blob([textToExport], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Idee_Inventagiochi.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Inizializza
+        window.onload = function() {
+            loadIdeas();
+            mescolaCarte();
+        };
+    </script>
+</body>
+</html>
